@@ -1,11 +1,7 @@
 import numpy as np
 import taichi as ti
 particle_num = 10000
-<<<<<<< HEAD
 step_len = 0.5
-=======
-step_len = 0.1
->>>>>>> cd12cc5d53ef0c517ca0c5cf93804f368b0806c9
 @ti.data_oriented
 class inkCanvas:
     def __init__(self, res):
@@ -25,29 +21,18 @@ class inkCanvas:
     @ti.kernel
     def simluate(self):
         for p in range(self.particle_cnt[None]):
-<<<<<<< HEAD
-            theta = 2 * 3.1415926 * ti.random(dtype=ti.f32)
-            diff = (ti.cos(theta), ti.sin(theta))
-            self.particles[p][0] += diff[0] * step_len
-            self.particles[p][1] += diff[1] * step_len
-=======
             theta = int(2*ti.random(dtype=ti.f32))
             pos = 2*(int(ti.random(ti.f32) * 2) - 0.5)
             if theta == 0:
                 self.particles[p][0] += step_len * pos
             else:
                 self.particles[p][1] += step_len * pos
->>>>>>> cd12cc5d53ef0c517ca0c5cf93804f368b0806c9
-    
+
     @ti.func
     def density(self, va, vb):
         diff = (va - vb).norm()
         diff /= self.res
-<<<<<<< HEAD
-        return 0.1*ti.exp(-10000*(diff))
-=======
         return 0.1*ti.exp(-10000*(diff*diff))
->>>>>>> cd12cc5d53ef0c517ca0c5cf93804f368b0806c9
 
     @ti.kernel
     def render(self):
@@ -55,3 +40,6 @@ class inkCanvas:
             self.pixels[i, j] = 1
         for i, j, k in ti.ndrange(self.res, self.res, self.particle_cnt[None]):
             self.pixels[i, j] -= self.density((i, j), self.particles[k]) * 0.5
+        for i, j in ti.ndrange(self.res, self.res):
+            if self.pixels[i, j] > 0.7:
+                self.pixels[i, j] = 1
