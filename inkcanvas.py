@@ -1,7 +1,7 @@
 import numpy as np
 import taichi as ti
-particle_num = 10000
-step_len = 0.5
+particle_num = 20000
+step_len = 0.5 #扩散速率
 @ti.data_oriented
 class inkCanvas:
     def __init__(self, res):
@@ -32,14 +32,14 @@ class inkCanvas:
     def density(self, va, vb):
         diff = (va - vb).norm()
         diff /= self.res
-        return 0.1*ti.exp(-10000*(diff*diff))
+        return 0.1*ti.exp(-10000*(diff*diff)) #距离插值函数
 
     @ti.kernel
     def render(self):
         for i, j in ti.ndrange(self.res, self.res):
             self.pixels[i, j] = 1
         for i, j, k in ti.ndrange(self.res, self.res, self.particle_cnt[None]):
-            self.pixels[i, j] -= self.density((i, j), self.particles[k]) * 0.5
+            self.pixels[i, j] -= self.density((i, j), self.particles[k])
         for i, j in ti.ndrange(self.res, self.res):
-            if self.pixels[i, j] > 0.7:
+            if self.pixels[i, j] > 0.7:#filter 使边缘光滑
                 self.pixels[i, j] = 1
