@@ -30,11 +30,11 @@ class inkCanvas:
     def density(self, va, vb):
         diff = (va - vb).norm()
         diff /= self.res
-        return 2 - 2*diff**(1/8) if diff < 0.1 else 0
+        return 0.1*ti.exp(-10000*(diff))
 
     @ti.kernel
     def render(self):
         for i, j in ti.ndrange(self.res, self.res):
             self.pixels[i, j] = 1
         for i, j, k in ti.ndrange(self.res, self.res, self.particle_cnt[None]):
-            self.pixels[i, j] -= self.density((i, j), self.particles[k]) * 0.01
+            self.pixels[i, j] -= self.density((i, j), self.particles[k]) * 0.5

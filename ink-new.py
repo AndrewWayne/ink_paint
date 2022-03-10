@@ -10,7 +10,7 @@ while gui.running:
     for e in gui.get_events(ti.GUI.PRESS):
         if e.key == ti.GUI.LMB:
             pos = gui.get_cursor_pos()
-            canv.add(10, pos[0]*RES, pos[1]*RES)
+            canv.add(100, pos[0]*RES, pos[1]*RES)
     for i in range(10):
         canv.simluate()
     canv.render()
