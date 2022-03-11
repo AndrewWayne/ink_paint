@@ -10,6 +10,9 @@ class inkCanvas:
         self.particle_cnt = ti.field(ti.i32, shape = ())
         self.particle_cnt[None] = 0
         self.particles = ti.Vector.field(2, shape = particle_num, dtype = ti.f32)
+        self.fibre_map = ti.field(ti.f32, shape = (res, res))
+        self.fibre_knot = ti.Vector.field(3, shape = int(res/10) ** 2, dtype = ti.i32)
+        self.knot_num = ti.field(ti.i32, shape = ())
 
     @ti.kernel
     def add(self, _num:ti.i32, _x:ti.f32, _y:ti.f32):
@@ -17,7 +20,39 @@ class inkCanvas:
             for i in range(self.particle_cnt[None], self.particle_cnt[None] + _num):
                 self.particles[i] = (_x, _y)
             self.particle_cnt[None] += _num
-    
+
+    @ti.kernel
+    def fibre_gen(self, d:ti.f64, f:ti.f64):#We recommend d = 0.8, f = 0.3
+        # init
+        for i, j in ti.ndrange(self.res, self.res):
+            self.fibre_map[i, j] = 0
+        # generate fibre knot
+        self.knot_num[None] = 0
+        for i, j in ti.ndrange(int(self.res / 10), int(self.res / 10)):
+            _x = int(ti.random() * 10 + i * 10)
+            _y = int(ti.random() * 10 + j * 10)
+            self.fibre_knot[self.knot_num[None]] = (_x, _y, 0)
+            self.knot_num[None] += 1
+            self.fibre_map[_x, _y] = d
+        #generate fibre
+        for i in range(self.knot_num[None]):
+            pos0 = self.fibre_knot[i]
+            if pos0[2] >= 2:
+                continue
+            for cnt in range(2 - pos0[2]):
+                k = int(ti.randn() * self.knot_num[None])
+                while k == i or self.fibre_knot[k][2] >= 2:
+                    k = int(ti.randn() * self.knot_num[None])
+                pos1 = self.fibre_knot[k]
+                self.fibre_knot[k][2] += 1
+                self.fibre_knot[i][2] += 1
+                lin1 = (pos1[1] - pos0[1]) / (pos1[0] - pos0[0])
+                for _x, _y in ti.ndrange(self.res, self.res):
+                    lin3 = (_y - pos0[1]) / (_x - pos0[0])
+                    lin4 = (_y - pos1[1]) / (_x - pos1[0])
+                    if (ti.abs(lin3 - lin1) <= 1e-3 or ti.abs(lin4 - lin1) <= 1e-3) and _x >= ti.min(pos0[0], pos1[0]) and _x <= ti.max(pos0[0], pos1[0]):
+                        self.fibre_map[_x, _y] = ti.max(self.fibre_map[_x, _y], f)
+
     @ti.kernel
     def simluate(self):
         for p in range(self.particle_cnt[None]):
