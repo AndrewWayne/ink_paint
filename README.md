@@ -1,17 +1,26 @@
-# Taichi-demo
+# Ink Paint Alpha v0.2.4
 
-An ink painting simulation programme based on random walk written with taichi.
+> Author: xiaohei_AWM, Ankhyty, Tensor
 
-![](./result1/video.gif)
+## Requirement
+- Taichi v1.0.1
+- numpy
+- cv2
+- ...
 
-click the mouse to put down the brush and click again to pull up.
+## Start to play with Paint_Panel_Alpha
+- Open Paint_Panel_alpha folder as root folder.
+- Press "e" to put down your brush.
+- Press "r" to pull up your brush.
+- Press "f" to pull up your brush slowly.
+- Press "q" to scale up your brush size.
+- Press "w" to scale down your brush size.
+- Press "c" to refresh your window.
+  
+## Start to play with Particle_Version
+- Open Particle_Version folder as root folder
+- read the readme.md document in it.
 
-click 'c' to clear the screen.
-
-Next Plan:
-- generate the fibre map to generate more graceful graph.
-    - After I take the method of fibre map, I generate a more ugly graph... Holy shit.
-- improve the code to speed it up.
-    - take the method above can cut down the time complexity.
-- continue reading relating paper and try other methods.
-    - sucks.
+## Update Log:
+- v0.2.4 Added blocks in background as reference-line.
+- v0.2.3 updated a new version which based on a new method, which can reach 60fps. No limit to particle number any more.

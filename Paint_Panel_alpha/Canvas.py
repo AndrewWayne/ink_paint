@@ -1,16 +1,18 @@
 import taichi as ti
 import numpy as np
+from read_bkg import get_bkg
+bkg_path = "./bkg1.png"
 S_and_K_percent=3
 color_filter=0.8
 dh = 1 # 空间步长
 dt = 0.05 # 时间步长
 dir_x = np.array([-1, 1, 0, 0, -1, 1, -1, 1])
 dir_y = np.array([0, 0, -1, 1, 1, -1, -1, 1])
+
 @ti.data_oriented
 class Canvas:
     def __init__(self, fibre):
         D_ratio=61  # 方便调参用
-
         self.edged_res_x = len(fibre)
         self.edged_res_y = len(fibre[0])
         self.res_x=self.edged_res_x-2
@@ -31,6 +33,8 @@ class Canvas:
         self.dir_x.from_numpy(dir_x*3)
         self.dir_y = ti.field(ti.i32, shape=8)
         self.dir_y.from_numpy(dir_y*3)
+        self.bkg = ti.Vector.field(3, ti.f32, self.res)
+        self.bkg.from_numpy(get_bkg(bkg_path))
 
 
 
@@ -82,11 +86,6 @@ class Canvas:
             ti.atomic_max(self.pixels[x, y][0], 0.5)
             ti.atomic_sub(self.pixels[x, y][0], 0.5)
             self.pixels[x, y][0] *= 2
-        ti.atomic_max(self.pixels[x, y][0], 0)
-        self.pixels[x, y][0] -= 1
-        self.pixels[x, y][0] *= -1
-        _pixel_num=255.0*self.pixels[x, y][0]
-        self.pixels[x, y]=[_pixel_num,_pixel_num,_pixel_num]
         #self.pixels[x, y] = self.tint(self.pixels[x, y], 1.1)
 
     # 计算nabla D
@@ -129,6 +128,18 @@ class Canvas:
         for x, y in ti.ndrange(self.res_x-2, self.res_y-2):
             px, py = x+1, y+1
             self.smooth_func(px, py)
+            ti.atomic_max(self.pixels[px, py][0], 0)
+            self.pixels[px, py][0] -= 1
+            self.pixels[px, py][0] *= -1
+            _pixel_num=255.0*self.pixels[px, py][0]
+            self.pixels[px, py]=[_pixel_num,_pixel_num,_pixel_num]
+
+
+        #for x, y in ti.ndrange(self.res_x-2, self.res_y-2):
+            #print(self.pixels[x, y])
+
+            #print(self.bkg[x, y])
+
 
 
         

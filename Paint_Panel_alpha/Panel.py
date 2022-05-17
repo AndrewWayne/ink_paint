@@ -3,7 +3,8 @@ import sys
 import os
 import Canvas
 import Brush
-import cv2
+#import cv2
+import matplotlib.image as im
 import numpy as np
 import datetime
 
@@ -66,16 +67,17 @@ class Panel:
         if self.gui.is_pressed(ti.GUI.ESCAPE):  # 按escape键退出程序
             sys.exit()
 
-         if self.gui.is_pressed('s'):
-             pre_pixels=self.canvas.pixels.to_numpy()
-             pixels=np.zeros(   ( len(pre_pixels[0]),len(pre_pixels),3 )   )
-             for i in range(len(pre_pixels[0])):
-                 for j in range(len(pre_pixels)):
-                     for k in range(3):
-                         pixels[len(pre_pixels[0])-1-i][j][k]=255.0*pre_pixels[j][i][k]
+        if self.gui.is_pressed('s'):
+            pre_pixels=self.canvas.pixels.to_numpy()
+            pixels=np.zeros(   ( len(pre_pixels[0]),len(pre_pixels),3 )   )
+            for i in range(len(pre_pixels[0])):
+                for j in range(len(pre_pixels)):
+                    for k in range(3):
+                        pixels[len(pre_pixels[0])-1-i][j][k]=255.0*pre_pixels[j][i][k]
             
             now = datetime.datetime.now()
-            cv2.imwrite("./CanvasShot/"+now.strftime("%d_%H_%M_%S")+".png",pixels)
+            #cv2.imwrite("./CanvasShot/"+now.strftime("%d_%H_%M_%S")+".png",pixels)
+            #im.imsave("./CanvasShot/" + now.strftime("%d_%H_%M_%S")+".png", pixels/255)
             self.pic_order+=1
 
 
@@ -93,14 +95,19 @@ class Panel:
         for i,j in ti.ndrange(self.res_x,self.res_y):
             self.canvas.sources[i,j]=self.brush.S[i,j]
         self.canvas.Update()
-    
+        for i,j in ti.ndrange(self.res_x-2, self.res_y-2):
+            px, py = i+1, j+1
+            self.canvas.pixels[px, py] -= self.canvas.bkg[px, py]
+            ti.atomic_max(self.canvas.pixels[px, py][0], 0)
+            ti.atomic_max(self.canvas.pixels[px, py][1], 0)
+            ti.atomic_max(self.canvas.pixels[px, py][2], 0)
     # 定义panel运行
     def run(self):
         while self.gui.running:
             self.gui_judge()
             self.gui_pos()
             self.render()
-            self.gui.set_image(self.canvas.pixels)
+            self.gui.set_image(self.canvas.pixels)#我tm真马勒为什么输出的PIXEL是有红色田字格的，但是set_image显示的就没有？
             self.gui.show()
         
     
