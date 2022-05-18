@@ -98,12 +98,16 @@ class Panel:
 
     # 定义panel运行
     def run(self):
+        ss = 0
         while self.gui.running:
+            ss += 1
             self.gui_judge()
             self.gui_pos()
             self.render()
             self.gui.set_image(self.canvas.showPic)#我tm真马勒为什么输出的PIXEL是有红色田字格的，但是set_image显示的就没有？
             #print(self.canvas.showPic)
             self.gui.show()
+            # name = f"./result/RES_{ss:04d}.png"
+            # self.gui.show(name)
         
     
