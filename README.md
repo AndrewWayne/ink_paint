@@ -2,6 +2,9 @@
 
 > Author: xiaohei_AWM, Ankhyty, Tensor
 
+## Example
+![](./Paint_Panel_alpha/result/video.gif)
+
 ## Requirement
 - Taichi v1.0.1
 - numpy
