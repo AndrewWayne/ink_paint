@@ -13,7 +13,7 @@ def get_bkg(image_path):
             if x==0 or x==res_x+1 or y==0 or y==res_y+1:
                 bkg[x, y] = [0, 0, 0]
             else:
-                bkg[x, y] = [255, 255, 255] - fibre[x-1][y-1]*255 - [1, 1, 1]
+                bkg[x, y] = [255, 255, 255] - fibre[x-1][y-1][0:3]*255 - [1, 1, 1]
                 bkg[x, y, 0] = max(0, bkg[x, y, 0])
                 bkg[x, y, 1] = max(0, bkg[x, y, 1])
                 bkg[x, y, 2] = max(0, bkg[x, y, 2])

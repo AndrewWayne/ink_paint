@@ -95,19 +95,15 @@ class Panel:
         for i,j in ti.ndrange(self.res_x,self.res_y):
             self.canvas.sources[i,j]=self.brush.S[i,j]
         self.canvas.Update()
-        for i,j in ti.ndrange(self.res_x-2, self.res_y-2):
-            px, py = i+1, j+1
-            self.canvas.pixels[px, py] -= self.canvas.bkg[px, py]
-            ti.atomic_max(self.canvas.pixels[px, py][0], 0)
-            ti.atomic_max(self.canvas.pixels[px, py][1], 0)
-            ti.atomic_max(self.canvas.pixels[px, py][2], 0)
+
     # 定义panel运行
     def run(self):
         while self.gui.running:
             self.gui_judge()
             self.gui_pos()
             self.render()
-            self.gui.set_image(self.canvas.pixels)#我tm真马勒为什么输出的PIXEL是有红色田字格的，但是set_image显示的就没有？
+            self.gui.set_image(self.canvas.showPic)#我tm真马勒为什么输出的PIXEL是有红色田字格的，但是set_image显示的就没有？
+            #print(self.canvas.showPic)
             self.gui.show()
         
     

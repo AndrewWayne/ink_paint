@@ -35,6 +35,7 @@ class Canvas:
         self.dir_y.from_numpy(dir_y*3)
         self.bkg = ti.Vector.field(3, ti.f32, self.res)
         self.bkg.from_numpy(get_bkg(bkg_path))
+        self.showPic = ti.Vector.field(3, ti.f32, shape=self.res)
 
 
 
@@ -50,7 +51,7 @@ class Canvas:
     @ti.func
     def tint(self, ratio, d):  # 根据墨水量0-1的比例调配出合理灰度的颜色
         ans = 0.0
-        if ratio >= 0.3:
+        if ratio >= 0.5:
             ans = ti.exp(18*(ti.min(1, ratio)-1))*d
         return ans
 
@@ -86,6 +87,11 @@ class Canvas:
             ti.atomic_max(self.pixels[x, y][0], 0.5)
             ti.atomic_sub(self.pixels[x, y][0], 0.5)
             self.pixels[x, y][0] *= 2
+        ti.atomic_max(self.pixels[x, y][0], 0.0)
+        self.pixels[x, y][0] -= 1
+        self.pixels[x, y][0] *= -1
+        _pixel_num=255.0*self.pixels[x, y][0]
+        self.pixels[x, y]=[_pixel_num,_pixel_num,_pixel_num]
         #self.pixels[x, y] = self.tint(self.pixels[x, y], 1.1)
 
     # 计算nabla D
@@ -128,11 +134,8 @@ class Canvas:
         for x, y in ti.ndrange(self.res_x-2, self.res_y-2):
             px, py = x+1, y+1
             self.smooth_func(px, py)
-            ti.atomic_max(self.pixels[px, py][0], 0)
-            self.pixels[px, py][0] -= 1
-            self.pixels[px, py][0] *= -1
-            _pixel_num=255.0*self.pixels[px, py][0]
-            self.pixels[px, py]=[_pixel_num,_pixel_num,_pixel_num]
+            self.showPic[px, py] = (self.pixels[px, py] - self.bkg[px, py])/255
+
 
 
         #for x, y in ti.ndrange(self.res_x-2, self.res_y-2):
